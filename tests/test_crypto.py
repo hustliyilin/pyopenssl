@@ -787,6 +787,31 @@ e3fJQJwX9+KsHRut6qNZDUbvRbtO1YIAwB4UJZjwAjEAtXCPURS5A4McZHnSwgTi
 Td8GMrwKz0557OxxtKN6uVVy4ACFMqEw0zN/KJI1vxc9
 -----END CERTIFICATE-----"""
 
+sm2_root_key_pem = b"""-----BEGIN EC PARAMETERS-----
+BggqgRzPVQGCLQ==
+-----END EC PARAMETERS-----
+-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEII/sRQnfpXCVx5kjmRbPp7KGgwJlOCx0kBX2Tr2lXrM2oAoGCCqBHM9V
+AYItoUQDQgAEkZX7gPPNGa0uwJMjTCBgVxlTD2krqPL1rZg2z9HLg3wnH06IxQ8r
+3su/VOmyoYBLBYcEjI7GSzvBy6ynX1ZDwA==
+-----END EC PRIVATE KEY-----"""
+
+sm2_root_cert_pem = b"""-----BEGIN CERTIFICATE-----
+MIICUzCCAfqgAwIBAgIUbVTzHqqPG7Agtp9RPBqzzueBOLkwCgYIKoEcz1UBg3Uw
+fjELMAkGA1UEBhMCQ04xETAPBgNVBAgMCFpoZWppYW5nMREwDwYDVQQHDAhIYW5n
+emhvdTEQMA4GA1UECgwHQWxpYmFiYTELMAkGA1UECwwCT1MxDTALBgNVBAMMBHRl
+c3QxGzAZBgkqhkiG9w0BCQEWDHRlc3RAZm9vLmNvbTAgFw0yMzAzMDIwMjAzMDda
+GA8yMTIzMDIwNjAyMDMwN1owfjELMAkGA1UEBhMCQ04xETAPBgNVBAgMCFpoZWpp
+YW5nMREwDwYDVQQHDAhIYW5nemhvdTEQMA4GA1UECgwHQWxpYmFiYTELMAkGA1UE
+CwwCT1MxDTALBgNVBAMMBHRlc3QxGzAZBgkqhkiG9w0BCQEWDHRlc3RAZm9vLmNv
+bTBaMBQGCCqBHM9VAYItBggqgRzPVQGCLQNCAASRlfuA880ZrS7AkyNMIGBXGVMP
+aSuo8vWtmDbP0cuDfCcfTojFDyvey79U6bKhgEsFhwSMjsZLO8HLrKdfVkPAo1Mw
+UTAdBgNVHQ4EFgQUT0EN5zYFPijk0Pzh+qA2m7JrH2UwHwYDVR0jBBgwFoAUT0EN
+5zYFPijk0Pzh+qA2m7JrH2UwDwYDVR0TAQH/BAUwAwEB/zAKBggqgRzPVQGDdQNH
+ADBEAiBuCQFJs1MxtD9+jc4zbQ3YV0xxRbRysJAx4ZsQ3v1g7gIgaNEsBOZZTdTn
+iKUt/0PJ33RxuywagIkBoU+NOjZiObw=
+-----END CERTIFICATE-----"""
+
 rsa_p_not_prime_pem = """
 -----BEGIN RSA PRIVATE KEY-----
 MBsCAQACAS0CAQcCAQACAQ8CAQMCAQACAQACAQA=
@@ -4381,6 +4406,22 @@ class TestSignVerify:
         cert = load_certificate(FILETYPE_PEM, ec_root_cert_pem)
         sig = sign(priv_key, content, "sha256")
         verify(cert, sig, content, "sha256")
+
+    def test_sign_verify_sm2(self):
+        """
+        `sign` generates a SM2 cryptographic signature which `verify` can
+        check.
+        """
+        content = (
+            b"It was a bright cold day in April, and the clocks were striking "
+            b"thirteen. Winston Smith, his chin nuzzled into his breast in an "
+            b"effort to escape the vile wind, slipped quickly through the "
+            b"glass doors of Victory Mansions, though not quickly enough to "
+            b"prevent a swirl of gritty dust from entering along with him."
+        )
+        priv_key = load_privatekey(FILETYPE_PEM, sm2_root_key_pem)
+        _ = load_certificate(FILETYPE_PEM, sm2_root_cert_pem)
+        _ = sign(priv_key, content, "sm3")
 
     def test_sign_nulls(self):
         """
